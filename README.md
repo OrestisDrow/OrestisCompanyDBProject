@@ -1,31 +1,5 @@
 # OrestisCompanyDBProject
 TBD
-/OrestisCompanyDB
-│
-├── /data
-│   └── orestiscompanydb.sqlite  # SQLite database file
-│
-├── /docs
-│   ├── schema.png               # Visual schema of the database (Entity-Relation Diagram)
-│
-├── /sql
-│   ├── init.sql                 # SQL commands to set up tables and relationships
-│
-├── /src
-│   ├── my_script.py             # Sample Python script file
-│   └── ...                      # Other Python source files
-│
-├── /visualizations
-│   └── ...                      # Generated charts, plots, etc.
-│
-├── Dockerfile                   # Docker build instructions
-│
-├── docker-compose.yml           # Docker Compose configuration
-│
-├── requirements.txt             # Python package dependencies
-│
-└── README.md                    # Project overview, setup instructions, etc.
-
 --------------WIP-----------------
 Database Design Decision:
 
