@@ -10,13 +10,17 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Install SQLite
+RUN apt-get update && apt-get install -y sqlite3 && apt-get clean
 
-# ... Previous content of your Dockerfile
+# Make port 80 available to the world outside this container (Not used in this project)
+EXPOSE 80
 
 # Copy the entrypoint script into the container
 COPY entrypoint.sh /app/
+
+# Make sure entrypoint is executable
+RUN chmod +x /app/entrypoint.sh
 
 # Use the entrypoint script as the default command
 ENTRYPOINT ["/app/entrypoint.sh"]
