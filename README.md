@@ -1,6 +1,25 @@
 # OrestisCompanyDBProject
 TBD
 --------------WIP-----------------
+
+
+
+--------------------------
+Use SQL inside container
+cd /app/data
+sqlite3 orestiscompanydb.sqlite
+SELECT * FROM Products;
+.exit
+--------------------------
+How to reset the database (delete + re-populate with pseudo-random generated data)
+Using CLI tool:
+From inside the docker container:
+python /app/src/cli.py resetdb
+
+From outside, using docker:
+docker exec [CONTAINER_ID_OR_NAME] python /app/src/cli.py resetdb
+
+--------------------------
 Database Design Decision:
 
 In designing the database schema for Orestis Company's sales analytics, I had a decision to make: adopt a more complex, but realistic structure with Orders and SaleLineItems or keep it simpler with just a Sales table.
