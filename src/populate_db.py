@@ -68,7 +68,6 @@ def populate_database(db_path):
     conn.commit()
     conn.close()
 
-    print("Database populated successfully!")
 
 if __name__ == "__main__":
     db_path = "/app/data/orestiscompanydb.sqlite"

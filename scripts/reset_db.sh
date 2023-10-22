@@ -1,6 +1,3 @@
-# The reset_db.sh script focuses solely on the actions required to reset the database.
-# while the cli.py tool handles user interactions, including confirmation prompts
- 
 #!/bin/bash
 
 # Adjust permissions for the data directory

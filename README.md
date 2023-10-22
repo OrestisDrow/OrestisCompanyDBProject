@@ -1,9 +1,10 @@
 # OrestisCompanyDBProject
 TBD
 --------------WIP-----------------
-
-
-
+Its just notes for the time being
+--------------------------
+The reset_db.sh script focuses solely on the actions required to reset the database.
+while the cli.py tool handles user interactions, including confirmation prompts
 --------------------------
 Use SQL inside container
 cd /app/data

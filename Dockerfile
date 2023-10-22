@@ -13,14 +13,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install SQLite
 RUN apt-get update && apt-get install -y sqlite3 && apt-get clean
 
-# Make port 80 available to the world outside this container (Not used in this project)
-EXPOSE 80
+# Adjust permissions for the data directory
+RUN mkdir -p /app/data && \
+    chmod 777 /app/data
 
-# Copy the entrypoint script into the container
-COPY entrypoint.sh /app/
-
-# Make sure entrypoint is executable
-RUN chmod +x /app/entrypoint.sh
-
-# Use the entrypoint script as the default command
+# Go directly into the provided user-friendly CLI unless user bypasses the entrypoint
+COPY entrypoint.sh /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
+CMD []
