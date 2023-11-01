@@ -1,8 +1,18 @@
 import subprocess
 import sqlite3
 import click
-#from analytics.basic_analytics import compute_basic_analytics
 from datetime import date, datetime
+import os
+
+def basic_analytics_files_exist():
+    """Check if the pre-processed basic analytics files exist."""
+    directory = '/app/data/analytics/basic'
+    # Check if the directory exists
+    if not os.path.exists(directory):
+        return False
+    # Check if there are any CSV files in the directory
+    return any(fname.endswith('.csv') for fname in os.listdir(directory))
+
 
 """Guards in order to check if the db is initialized and/or populated"""
 def db_initialized():
@@ -55,7 +65,13 @@ def repl(ctx):
     click.echo("  Note:")
     click.echo("    - dates must be between 20210101 and 20211231, default all dates that data exist [2021, 2022]")
     click.echo("    - arg can be b('basic'), i('intermediate') or a('advanced') analytics, default all")
-    
+    click.echo("    - arg can also be bi, ib, ba, ab, ai, ia, as per their combinations")
+    click.echo("")
+    click.echo("-----Visualization Commands-----")
+    click.echo("  visualize_basic_analytics         - Visualize basic analytics.")
+    click.echo("  visualize_intermediate_analytics  - Visualize intermediate analytics.")
+    click.echo("  visualize_advanced_analytics      - Visualize advanced analytics.")
+    click.echo("")
     
     while True:
         command_parts = input('orestiscompany> ').split()
@@ -93,6 +109,8 @@ def repl(ctx):
                 end_date = args[1]
 
             ctx.invoke(pre_process_analytics, start_date=start_date, end_date=end_date, process_basic=process_basic, process_intermediate=process_intermediate, process_advanced=process_advanced)
+        elif base_command == 'visualize_basic_analytics':
+            ctx.invoke(visualize_basic_analytics)
         else:
             click.echo(f"Unknown command: {base_command}")
 
@@ -200,5 +218,36 @@ def pre_process_analytics(start_date, end_date, process_basic, process_intermedi
     if process_advanced:
         click.echo("Advanced analytics not implemented yet.")
     
+@cli.command()
+@click.pass_context
+def visualize_basic_analytics(ctx):
+    """Visualize basic analytics."""
+    # Check if the database is initialized and populated
+    if not db_initialized():
+        click.echo("The database hasn't been initialized. Please initialize it before pre-processing analytics.")
+        return
+    if not db_populated():
+        click.echo("The database hasn't been populated. Please populate it before pre-processing analytics.")
+        return
+    
+    # Check if the basic analytics files exist
+    if not basic_analytics_files_exist():
+        click.echo("It seems the basic analytics data hasn't been pre-processed yet.")
+        if click.confirm("Would you like to pre-process it now with the default settings?", default=True):
+            # Invoke pre_process_analytics with default settings
+            ctx.invoke(pre_process_analytics, start_date='20210101', end_date='20221231', process_basic=True, process_intermediate=False, process_advanced=False)
+        else:
+            click.echo("Please pre-process the basic analytics data before visualizing.")
+            return
+
+    try:
+        # Execute the basic_analytics_viz.sh script
+        subprocess.run(["/app/scripts/basic_analytics_viz.sh"], check=True)
+        click.echo("Visualization completed!")
+    except subprocess.CalledProcessError:
+        click.echo("An error occurred while visualizing basic analytics.")
+
+
+
 if __name__ == "__main__":
     cli()
