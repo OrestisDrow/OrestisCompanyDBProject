@@ -93,13 +93,17 @@ def avg_sales_by_weekday(conn, start_date=None, end_date=None):
     return df
 
 def compute_intermediate_analytics(start_date=None, end_date=None):
-    with sqlite3.connect(DB_PATH) as conn:
-        avg_sales_by_weekday(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'avg_sales_by_weekday.csv'), index=False)
-        sales_by_day_of_month(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'sales_by_day_of_month.csv'), index=False)
-        monthly_sales_trend(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'monthly_sales_trend.csv'), index=False)
-        customer_frequency(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'customer_frequency.csv'), index=False)
-        avg_purchase_per_customer(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'avg_purchase_per_customer.csv'), index=False)
-        
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            avg_sales_by_weekday(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'avg_sales_by_weekday.csv'), index=False)
+            sales_by_day_of_month(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'sales_by_day_of_month.csv'), index=False)
+            monthly_sales_trend(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'monthly_sales_trend.csv'), index=False)
+            customer_frequency(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'customer_frequency.csv'), index=False)
+            avg_purchase_per_customer(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'avg_purchase_per_customer.csv'), index=False)
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        sys.exit(1)  
+
 if __name__ == "__main__":
     # Make the data dir if not exists
     if not os.path.exists(DATA_DIR):

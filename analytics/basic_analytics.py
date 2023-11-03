@@ -133,17 +133,21 @@ def top_stores_by_sales(conn, start_date=None, end_date=None, limit=3):
 
 
 def compute_basic_analytics(start_date=None, end_date=None):
-    with sqlite3.connect(DB_PATH) as conn:
-        total_sales(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'total_sales.csv'), index=False)
-        sales_by_product(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'sales_by_product.csv'), index=False)
-        sales_by_region(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'sales_by_region.csv'), index=False)
-        profit_total(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'profit_total.csv'), index=False)
-        profit_by_product(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'profit_by_product.csv'), index=False)
-        profit_by_region(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'profit_by_region.csv'), index=False)
-        top_selling_products(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'top_selling_products.csv'), index=False)
-        top_customers(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'top_customers.csv'), index=False)
-        top_stores_by_sales(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'top_stores_by_sales.csv'), index=False)
-
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            total_sales(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'total_sales.csv'), index=False)
+            sales_by_product(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'sales_by_product.csv'), index=False)
+            sales_by_region(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'sales_by_region.csv'), index=False)
+            profit_total(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'profit_total.csv'), index=False)
+            profit_by_product(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'profit_by_product.csv'), index=False)
+            profit_by_region(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'profit_by_region.csv'), index=False)
+            top_selling_products(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'top_selling_products.csv'), index=False)
+            top_customers(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'top_customers.csv'), index=False)
+            top_stores_by_sales(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'top_stores_by_sales.csv'), index=False)
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        sys.exit(1)  
+        
 if __name__ == "__main__":
     # Make the data dir if not exists
     if not os.path.exists(DATA_DIR):

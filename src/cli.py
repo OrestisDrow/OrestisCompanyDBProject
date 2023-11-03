@@ -5,6 +5,29 @@ from datetime import date, datetime
 import os
 import webbrowser
 import time
+import re
+
+def string_to_date(date_str):
+    """
+    Convert a string in the format "yyyymmdd" to a datetime.date object.
+    """
+    try:
+        return datetime.strptime(date_str, '%Y%m%d').date()
+    except ValueError:
+        return None
+    
+def is_valid_date_range(start_date_str, end_date_str):
+    """
+    Check if the given start_date and end_date are within the year range [2021, 2022].
+    """
+    start_date = datetime.strptime(start_date_str, "%Y%m%d").date()
+    end_date = datetime.strptime(end_date_str, "%Y%m%d").date()
+    
+    min_date = date(2021, 1, 1)
+    max_date = date(2022, 12, 31)
+    
+    return min_date <= start_date <= max_date and min_date <= end_date <= max_date and start_date <= end_date
+
 
 def basic_analytics_files_exist():
     """Check if the pre-processed basic analytics files exist."""
@@ -43,8 +66,6 @@ def db_populated():
     except sqlite3.OperationalError:
         return False
 
-
-
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -77,6 +98,8 @@ def repl(ctx):
     click.echo("  visualize_advanced_analytics      - Visualize advanced analytics.")
     click.echo("")
     
+    date_pattern = re.compile(r'^\d{4}\d{2}\d{2}$')
+    
     while True:
         command_parts = input('orestiscompany> ').split()
         base_command = command_parts[0]
@@ -107,10 +130,23 @@ def repl(ctx):
             if not any([process_basic, process_intermediate, process_advanced]):
                 process_basic = process_intermediate = process_advanced = True
 
-            if len(args) > 0 and args[0].isdigit():
-                start_date = args[0]
-            if len(args) > 1 and args[1].isdigit():
-                end_date = args[1]
+            if len(args) > 0:
+                if date_pattern.match(args[0]):
+                    start_date = args[0]
+                else:
+                    print(f"Error: The provided start_date {args[0]} is not in the correct YYYYMMDD format.")
+                    continue  # Skip the rest of the loop and prompt the user for a new command
+
+            if len(args) > 1:
+                if date_pattern.match(args[1]):
+                    end_date = args[1]
+                else:
+                    print(f"Error: The provided end_date {args[1]} is not in the correct YYYYMMDD format.")
+                    continue
+
+            if not is_valid_date_range(args[0], args[1]):
+                print(f"Error: The provided start and end dates: [{args[0]},{args[1]}] are not within the year range [2021, 2022] or start > end date.")
+                continue
 
             ctx.invoke(pre_process_analytics, start_date=start_date, end_date=end_date, process_basic=process_basic, process_intermediate=process_intermediate, process_advanced=process_advanced)
         elif base_command == 'visualize_basic_analytics':
@@ -160,23 +196,6 @@ def reset_db():
             click.echo("An error occurred while resetting the database.")
 
 
-def string_to_date(date_str):
-    """
-    Convert a string in the format "yyyymmdd" to a datetime.date object.
-    """
-    try:
-        return datetime.strptime(date_str, '%Y%m%d').date()
-    except ValueError:
-        return None
-
-def is_valid_date_range(start_date, end_date):
-    """
-    Check if the given start_date and end_date are within the year range [2021, 2022].
-    """
-    min_date = date(2021, 1, 1)
-    max_date = date(2022, 12, 31)
-    return min_date <= start_date <= max_date and min_date <= end_date <= max_date
-
 @cli.command()
 @click.argument('start_date', required=False, default='20210101')
 @click.argument('end_date', required=False, default='20221231')
@@ -195,19 +214,6 @@ def pre_process_analytics(start_date, end_date, process_basic, process_intermedi
     # Convert string dates to datetime.date objects
     start = string_to_date(start_date)
     end = string_to_date(end_date)
-
-    # Validate the conversion and the date range
-    if start is None or end is None:
-        click.echo(f"Invalid date format. Please provide dates in 'ddmmyyyy' format.")
-        return
-
-    if not is_valid_date_range(start, end):
-        click.echo(f"Dates must be within the year range [2021, 2022].")
-        return
-
-    if start > end:
-        click.echo(f"Start date {start_date} is later than end date {end_date}.")
-        return
 
     if process_basic:
         try:
