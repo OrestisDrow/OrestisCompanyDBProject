@@ -25,5 +25,8 @@ COPY entrypoint.sh /app/entrypoint.sh
 # Give entrypoint execution permissions
 RUN chmod +x /app/entrypoint.sh
 
+# Expose port to communicate between host machine and container
+EXPOSE 8050
+
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD []

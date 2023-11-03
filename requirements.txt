@@ -3,3 +3,5 @@ matplotlib==3.4.3
 seaborn==0.11.2
 Click==8.0.1
 plotly==5.3.1
+dash==2.5.1
+dash-bootstrap-components==1.1.0

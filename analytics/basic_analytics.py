@@ -2,7 +2,6 @@ import sqlite3
 import pandas as pd
 import os
 import sys
-from datetime import datetime
 
 DATA_DIR = '/app/data/analytics/basic/'
 DB_PATH = '/app/data/orestiscompanydb.sqlite'

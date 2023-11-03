@@ -3,6 +3,8 @@ import sqlite3
 import click
 from datetime import date, datetime
 import os
+import webbrowser
+import time
 
 def basic_analytics_files_exist():
     """Check if the pre-processed basic analytics files exist."""
@@ -62,12 +64,14 @@ def repl(ctx):
     click.echo("")
     click.echo("-----Pre-process Analytics Commands-----")
     click.echo("  pre_process_analytics start_date end_date -arg              - Pre-process analytics for visualizations.")
+    click.echo("")
     click.echo("  Note:")
     click.echo("    - dates must be between 20210101 and 20211231, default all dates that data exist [2021, 2022]")
     click.echo("    - arg can be b('basic'), i('intermediate') or a('advanced') analytics, default all")
     click.echo("    - arg can also be bi, ib, ba, ab, ai, ia, as per their combinations")
     click.echo("")
     click.echo("-----Visualization Commands-----")
+    click.echo("(in progress)")
     click.echo("  visualize_basic_analytics         - Visualize basic analytics.")
     click.echo("  visualize_intermediate_analytics  - Visualize intermediate analytics.")
     click.echo("  visualize_advanced_analytics      - Visualize advanced analytics.")
@@ -213,7 +217,11 @@ def pre_process_analytics(start_date, end_date, process_basic, process_intermedi
             click.echo("An error occurred while processing basic analytics.")
 
     if process_intermediate:
-        click.echo("Intermediate analytics not implemented yet.")
+        try:
+            subprocess.call(['/app/scripts/intermediate_analytics.sh', start_date, end_date])
+            click.echo("Intermediate analytics pre-processed successfully!")
+        except subprocess.CalledProcessError:
+            click.echo("An error occurred while processing intermediate analytics.")
 
     if process_advanced:
         click.echo("Advanced analytics not implemented yet.")
@@ -241,9 +249,13 @@ def visualize_basic_analytics(ctx):
             return
 
     try:
-        # Execute the basic_analytics_viz.sh script
+        # Execute the basic_analytics_viz.sh script (thhis will start the Dash/Flask Server)
         subprocess.run(["/app/scripts/basic_analytics_viz.sh"], check=True)
-        click.echo("Visualization completed!")
+        # Wait a couple of seconds for the server to start
+        time.sleep(2)
+        # Open the user's default browser or a new tab if it's already open
+        # webbrowser.open_new_tab('http://localhost:8050/')
+        click.echo("Visualization for basic analytics should now be in 'http://localhost:8050/'")
     except subprocess.CalledProcessError:
         click.echo("An error occurred while visualizing basic analytics.")
 
