@@ -1,11 +1,12 @@
 import subprocess
-import sqlite3
-import click
-from datetime import date, datetime
 import os
 import webbrowser
 import time
 import re
+import shutil
+import sqlite3
+import click
+from datetime import date, datetime
 
 def string_to_date(date_str):
     """
@@ -38,6 +39,15 @@ def basic_analytics_files_exist():
     # Check if there are any CSV files in the directory
     return any(fname.endswith('.csv') for fname in os.listdir(directory))
 
+def cleanup_analytics_data(directory):
+    """
+    Delete the directory if it exists.
+    """
+    try:
+        shutil.rmtree(directory)
+        click.echo(f"Cleaned up old analytics data in {directory}.")
+    except Exception as e:
+        click.echo(f"An error occurred while cleaning up analytics data: {e}")
 
 """Guards in order to check if the db is initialized and/or populated"""
 def db_initialized():
@@ -118,7 +128,7 @@ def repl(ctx):
             end_date = '20221231'
             process_basic = process_intermediate = process_advanced = False
 
-            # Check if any args are flags
+            # Check if any args are analytics flags
             for arg in args:
                 if arg in ['-b', '-bi', '-ib', '-ba', '-ab']:
                     process_basic = True
@@ -129,7 +139,10 @@ def repl(ctx):
 
             if not any([process_basic, process_intermediate, process_advanced]):
                 process_basic = process_intermediate = process_advanced = True
-
+                
+            if len(args) == 0:
+                ctx.invoke(pre_process_analytics, start_date=start_date, end_date=end_date, process_basic=process_basic, process_intermediate=process_intermediate, process_advanced=process_advanced)
+                continue
             if len(args) > 0:
                 if date_pattern.match(args[0]):
                     start_date = args[0]
@@ -144,7 +157,7 @@ def repl(ctx):
                     print(f"Error: The provided end_date {args[1]} is not in the correct YYYYMMDD format.")
                     continue
 
-            if not is_valid_date_range(args[0], args[1]):
+            if len(args) > 1 and not is_valid_date_range(args[0], args[1]):
                 print(f"Error: The provided start and end dates: [{args[0]},{args[1]}] are not within the year range [2021, 2022] or start > end date.")
                 continue
 
@@ -203,6 +216,9 @@ def reset_db():
 @click.option('--intermediate', 'process_intermediate', is_flag=True, default=False, help='Compute intermediate analytics')
 @click.option('--advanced', 'process_advanced', is_flag=True, default=False, help='Compute advanced analytics')
 def pre_process_analytics(start_date, end_date, process_basic, process_intermediate, process_advanced):
+     # Clean up existing analytics data
+    cleanup_analytics_data("/app/data/analytics")
+
     # Check if the database is initialized and populated
     if not db_initialized():
         click.echo("The database hasn't been initialized. Please initialize it before pre-processing analytics.")
