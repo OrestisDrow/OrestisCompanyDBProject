@@ -29,8 +29,9 @@ def read_data(file_name):
 
 # Function to create a bar chart
 def create_bar_chart(data, title):
+    sorted_data = data.sort_values(by=data.columns[1], ascending=False)  # Sort data in descending order based on the second column
     return {
-        'data': [go.Bar(x=data[data.columns[0]], y=data[data.columns[1]], name=title)],
+        'data': [go.Bar(x=sorted_data[sorted_data.columns[0]], y=sorted_data[sorted_data.columns[1]], name=title)],
         'layout': {'title': title}
     }
 
