@@ -7,6 +7,8 @@ import shutil
 import sqlite3
 import click
 from datetime import date, datetime
+import socket
+from contextlib import closing
 
 def analytics_files_exist(analytics_type):
     """
@@ -208,7 +210,13 @@ def eval_pre_process_analytics_command(args):
         return None, error_message
 
 
-
+def check_port(port):
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        if sock.connect_ex(('localhost', port)) == 0:
+            return True # The port is open
+        else:
+            return False # The port is closed
+        
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -404,23 +412,28 @@ def visualize_analytics(ctx):
         click.echo("It seems there are no pre processed analytics available to visualize")
         click.echo("Please check the pre_process_analytics command")
 
-
+    PORT = 8050
     if analytics_files_exist('basic'):
-        try:
-            # Execute the basic_analytics_viz.sh script (this will start the Dash/Flask Server)
-            # Completely disregard any stdout/stderr and dont keep logs, 
-            # When user exits the CLI then the Dash server will get SIGKILLL anyways.
-            # All of the above are outside this project's scope.
-            subprocess.Popen(
-                ["/app/scripts/basic_analytics_viz.sh"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL)
-             
-            # Wait a couple of seconds for the server to start
-            time.sleep(2)
-            click.echo("Visualization for basic analytics should now be in 'http://localhost:8050/'")
-        except Exception as e:
-            click.echo(f"An error occurred while visualizing basic analytics: {e}")
+        if check_port(PORT):
+            click.echo(f"Dash visualization server is already running on port {PORT}, check http://localhost:8050")
+            click.echo(f"You can even do reset_db and pre_process_analytics again and the visualization server will adjust")
+        else:
+            try:
+                # Execute the basic_analytics_viz.sh script (this will start the Dash/Flask Server)
+                # Completely disregard any stdout/stderr and dont keep logs, 
+                # When user exits the CLI then the Dash server will get SIGKILLL anyways.
+                # All of the above are outside this project's scope.
+                subprocess.Popen(
+                    ["/app/scripts/analytics_viz.sh"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL)
+                
+                
+                # Wait a couple of seconds for the server to start
+                time.sleep(2)
+                click.echo("Visualization for basic analytics should now be in 'http://localhost:8050/'")
+            except Exception as e:
+                click.echo(f"An error occurred while visualizing basic analytics: {e}")
 
     return
 
