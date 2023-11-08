@@ -1,3 +1,7 @@
 #!/bin/bash
 
-python3 /app/visualizations/analytics_viz.py
+# Add the parent directory of `analytics_dashboard` to PYTHONPATH
+export PYTHONPATH="/app:$PYTHONPATH"
+
+python3 -m analytics_dashboard.app
+

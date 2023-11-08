@@ -419,14 +419,15 @@ def visualize_analytics(ctx):
             click.echo(f"You can even do reset_db and pre_process_analytics again and the visualization server will adjust")
         else:
             try:
-                # Execute the basic_analytics_viz.sh script (this will start the Dash/Flask Server)
+                # Execute the basic_analytics_viz.sh script (this will start the Dash(Flask) Server)
                 # Completely disregard any stdout/stderr and dont keep logs, 
                 # When user exits the CLI then the Dash server will get SIGKILLL anyways.
                 # All of the above are outside this project's scope.
                 subprocess.Popen(
                     ["/app/scripts/analytics_viz.sh"],
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL)
+                    stderr=subprocess.DEVNULL
+                    )
                 
                 
                 # Wait a couple of seconds for the server to start
