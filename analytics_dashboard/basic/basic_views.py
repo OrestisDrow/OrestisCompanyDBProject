@@ -26,7 +26,6 @@ def create_indicator(data, title):
             'data': [go.Indicator(
                 mode="number+delta",
                 value=data.iloc[0, 0],
-                title={"text": title}
             )],
             'layout': {'title': title, 'height': 300}
         }

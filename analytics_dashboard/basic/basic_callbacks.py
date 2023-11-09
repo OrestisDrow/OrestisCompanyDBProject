@@ -2,6 +2,7 @@
 from dash.dependencies import Input, Output
 from analytics_dashboard.basic.basic_views import create_bar_chart, create_indicator
 from analytics_dashboard.basic.data_handling import read_data_basic
+from dash import no_update
 
 def register_basic_callbacks(app):
     @app.callback(
@@ -16,11 +17,12 @@ def register_basic_callbacks(app):
             Output('top-customers', 'figure'),
             Output('top-stores-by-sales', 'figure'),
         ],
-        [Input('interval-component', 'n_intervals')]
+        [Input('basic-interval-component', 'n_intervals')],
+        [Input('tabs', 'value')]
     )
-    def update_graph_live(n_intervals):
-        # Here you would call your data processing functions and plot generation functions
-        # For example:
+    def update_basic_graphs_live(n_intervals, tab):
+        if tab != 'tab-basic':  # If it's not the basic tab, return no update
+            return [no_update] * 9
         total_sales = create_indicator(read_data_basic('total_sales.csv'), 'Total Sales')
         sales_by_region = create_bar_chart(read_data_basic('sales_by_region.csv', sort_by='sales_by_region', ascending=False), 'Sales by Region')
         sales_by_product = create_bar_chart(read_data_basic('sales_by_product.csv', sort_by='sales_by_product', ascending=False), 'Sales by Product')

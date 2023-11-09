@@ -1,9 +1,12 @@
 from dash import Dash, html, dcc, Input, Output
 from analytics_dashboard.layout import get_layout
+
 from analytics_dashboard.basic.basic_callbacks import register_basic_callbacks
 from analytics_dashboard.basic.basic_views import render_basic_view
 
-#from intermediate.intermediate_callbacks import register_intermediate_callbacks
+from analytics_dashboard.intermediate.intermediate_callbacks import register_intermediate_callbacks
+from analytics_dashboard.intermediate.intermediate_views import render_intermediate_view
+
 #from advanced.advanced_callbacks import register_advanced_callbacks
 
 import sys
@@ -13,11 +16,11 @@ sys.path.append('/app')
 app = Dash(__name__, suppress_callback_exceptions=True)
 
 # Import layouts and register callbacks
-
 app.layout = get_layout()
 
-# Register callbacks
 register_basic_callbacks(app)
+register_intermediate_callbacks(app)
+#register_advanced_callbacks(app)
 
 # The callback function that renders the content based on selected tab
 @app.callback(Output('tabs-content', 'children'),
@@ -26,10 +29,7 @@ def render_content(tab):
     if tab == 'tab-basic':
         return render_basic_view()
     elif tab == 'tab-intermediate':
-        # Placeholder for intermediate analytics layout function
-        return html.Div([
-            html.H3('Intermediate analytics coming soon...')
-        ])
+        return render_intermediate_view()
     elif tab == 'tab-advanced':
         # Placeholder for advanced analytics layout function
         return html.Div([

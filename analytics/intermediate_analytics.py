@@ -14,9 +14,9 @@ def reformat_date(date_str):
     """
     return "{}-{}-{}".format(date_str[:4], date_str[4:6], date_str[6:])
 
-def customer_frequency(conn, start_date=None, end_date=None):
+def avg_purchase_frequency(conn, start_date=None, end_date=None):
     query = """
-    SELECT Customers.name, COUNT(DISTINCT DateInfo.date) AS purchase_frequency
+    SELECT Customers.customer_id, COUNT(Sales.sale_id) AS purchase_count
     FROM Sales
     JOIN Customers ON Sales.customer_id = Customers.customer_id
     JOIN DateInfo ON Sales.date_id = DateInfo.date_id
@@ -24,11 +24,14 @@ def customer_frequency(conn, start_date=None, end_date=None):
     if start_date and end_date:
         query += f" WHERE DateInfo.date BETWEEN '{start_date}' AND '{end_date}'"
     query += """
-    GROUP BY Customers.name
-    ORDER BY purchase_frequency DESC, Customers.name
+    GROUP BY Customers.customer_id
     """
 
-    df = pd.read_sql_query(query, conn)
+    temp_df = pd.read_sql_query(query, conn)
+
+    df = pd.DataFrame({
+        'average_purchase_frequency': [temp_df['purchase_count'].mean()]
+    })
     return df
 
 def avg_purchase_per_customer(conn, start_date=None, end_date=None):
@@ -98,7 +101,7 @@ def compute_intermediate_analytics(start_date=None, end_date=None):
             avg_sales_by_weekday(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'avg_sales_by_weekday.csv'), index=False)
             sales_by_day_of_month(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'sales_by_day_of_month.csv'), index=False)
             monthly_sales_trend(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'monthly_sales_trend.csv'), index=False)
-            customer_frequency(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'customer_frequency.csv'), index=False)
+            avg_purchase_frequency(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'avg_purchase_frequency.csv'), index=False)
             avg_purchase_per_customer(conn, start_date, end_date).to_csv(os.path.join(DATA_DIR, 'avg_purchase_per_customer.csv'), index=False)
     except sqlite3.Error as e:
         print(f"Database error: {e}")
