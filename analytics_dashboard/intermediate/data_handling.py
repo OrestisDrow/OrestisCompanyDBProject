@@ -19,15 +19,5 @@ def read_data_intermediate(file_name, sort_by=None, ascending=False):
             # If we're sorting by another column, just sort it as usual
             df.sort_values(by=sort_by, ascending=ascending, inplace=True)
         return df
-    except FileNotFoundError:
-        print(f"The file {file_name} was not found in the directory.")
-        return None
-    except pd.errors.EmptyDataError:
-        print(f"The file {file_name} is empty.")
-        return None
-    except pd.errors.ParserError:
-        print(f"The file {file_name} contains parsing errors.")
-        return None
-    except Exception as e:  # Handle unforeseen errors
-        print(f"An error occurred while reading {file_name}: {e}")
+    except: 
         return None

@@ -1,8 +1,8 @@
 import pandas as pd
 import os
 
-def read_data_basic(file_name, sort_by=None, ascending=False):
-    DATA_DIR = '/app/data/analytics/basic'
+def read_data_advanced(file_name, sort_by=None, ascending=True):
+    DATA_DIR = '/app/data/analytics/advanced'
     try:
         df = pd.read_csv(os.path.join(DATA_DIR, file_name))
         if sort_by and sort_by in df.columns:

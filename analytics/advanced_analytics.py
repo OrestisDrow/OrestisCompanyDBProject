@@ -3,6 +3,7 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 import os
 import sys
+from datetime import datetime
 
 DATA_DIR = '/app/data/analytics/advanced/'
 DB_PATH = '/app/data/orestiscompanydb.sqlite'
@@ -66,7 +67,7 @@ def calculate_product_profit_margin(conn, start_date=None, end_date=None):
     query += "GROUP BY Products.product_id, Products.name ORDER BY profit_margin DESC"
     
     df = pd.read_sql(query, conn)
-    return df
+    return df[['name', 'profit_margin']]
 
 def calculate_store_profit_margin(conn, start_date=None, end_date=None):
     query = """
@@ -84,7 +85,7 @@ def calculate_store_profit_margin(conn, start_date=None, end_date=None):
         query += f" WHERE DateInfo.date BETWEEN '{start_date}' AND '{end_date}'"
     query += "GROUP BY Stores.store_id, Stores.city ORDER BY profit_margin DESC"
     df = pd.read_sql(query, conn)
-    return df
+    return df[['store_id', 'city', 'profit_margin']]
 
 def forecast_with_arima(series, order, steps=5):
     # Check if the series index has a frequency set; if not, attempt to infer it
@@ -104,13 +105,13 @@ def forecast_with_arima(series, order, steps=5):
 def forecast_daily_profits(conn, start_date=None, end_date=None, forecast_steps=5):
     # First, calculate daily profits
     daily_profits_df = calculate_daily_profits(conn, start_date, end_date)
-    
+    historical_profits_df = daily_profits_df.copy(deep=True)
+
     # Ensure that the 'date' column is a datetime type and set as index
     daily_profits_df['date'] = pd.to_datetime(daily_profits_df['date'])
     daily_profits_df.set_index('date', inplace=True)
 
     # ARIMA Model order (p,d,q) can be determined using ACF and PACF plots or grid search methods
-    # Here, we are assuming an order of (1,1,1), but this should be properly selected
     order = (1, 1, 1)
     
     # We need at least 60 days of data to forecast 5 days ahead
@@ -118,16 +119,25 @@ def forecast_daily_profits(conn, start_date=None, end_date=None, forecast_steps=
         return None
 
     forecasted_profits = forecast_with_arima(daily_profits_df['daily_profit'], order, steps=forecast_steps)
-    # Reset index to turn the date index into a column
     forecasted_profits = forecasted_profits.reset_index()
-
+    
     # Rename the columns to give them appropriate names
-    forecasted_profits.columns = ['date', 'forecasted_profit']
+    forecasted_profits.columns = ['date', 'daily_profit']
+    
+    # Convert the 'date' column to datetime type and extract only the date
+    forecasted_profits['date'] = forecasted_profits['date'].dt.date
 
-    return forecasted_profits
+    # Combine the original daily profits with the forecasted profits
+    combined_df = pd.concat([historical_profits_df, forecasted_profits], ignore_index=True)
+        
+    return combined_df[['date', 'daily_profit']]
 
 
 def calculate_rfm_scores(conn, start_date=None, end_date=None):
+
+    # Need at least 60 days of data to reliably calculate RFM scores
+    if (datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days < 60:
+        return None
     # Set current_date as end_date if provided, otherwise default to '20221231'
     current_date = end_date if end_date else '20221231'
     
@@ -195,7 +205,8 @@ def compute_advanced_analytics(start_date=None, end_date=None):
 
             # Calculate RFM scores and save to CSV
             rfm_scores_df = calculate_rfm_scores(conn, start_date, end_date)
-            rfm_scores_df.to_csv(os.path.join(DATA_DIR, 'rfm_scores.csv'), index=False)
+            if rfm_scores_df is not None:
+                rfm_scores_df.to_csv(os.path.join(DATA_DIR, 'rfm_scores.csv'), index=False)
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         sys.exit(1)

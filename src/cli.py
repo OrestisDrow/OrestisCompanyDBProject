@@ -352,7 +352,7 @@ def reset_db():
 @click.option('--intermediate', 'process_intermediate', is_flag=True, default=False, help='Compute intermediate analytics')
 @click.option('--advanced', 'process_advanced', is_flag=True, default=False, help='Compute advanced analytics')
 def pre_process_analytics(start_date, end_date, process_basic, process_intermediate, process_advanced):
-     # Clean up existing analytics data
+    # Clean up existing analytics data
     cleanup_analytics_data("/app/data/analytics")
 
     # Check if the database is initialized and populated
@@ -362,10 +362,6 @@ def pre_process_analytics(start_date, end_date, process_basic, process_intermedi
     if not db_populated():
         click.echo("It seems the database hasn't been populated yet. Please populate_db first.")
         return
-    
-    # Convert string dates to datetime.date objects
-    #start = string_to_date(start_date)
-    #end = string_to_date(end_date)
 
     if process_basic:
         try:
@@ -419,7 +415,7 @@ def visualize_analytics(ctx):
         PORT = 8050
         if check_port(PORT):
             click.echo(f"Dash visualization service is already running on port {PORT}, check http://localhost:{PORT}")
-            click.echo(f"You can even do reset_db and pre_process_analytics again and the visualization service will adjust")
+            click.echo(f"You can even do reset_db and/or pre_process_analytics again and the visualization service will adjust")
         else:
             try:
                 # Execute the analytics_viz.sh script (this will start the Dash(Flask) Server)
@@ -432,7 +428,6 @@ def visualize_analytics(ctx):
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL
                     )
-                
                 
                 # Wait a couple of seconds for the server to start
                 time.sleep(2)
