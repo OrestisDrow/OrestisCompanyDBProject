@@ -382,7 +382,11 @@ def pre_process_analytics(start_date, end_date, process_basic, process_intermedi
             click.echo("An error occurred while processing intermediate analytics.")
 
     if process_advanced:
-        click.echo("Advanced analytics not implemented yet.")
+        try:
+            subprocess.call(['/app/scripts/advanced_analytics.sh', start_date, end_date])
+            click.echo("Advanced analytics pre-processed successfully!")
+        except subprocess.CalledProcessError:
+            click.echo("An error occurred while processing advanced analytics.")
     
 @cli.command()
 @click.pass_context
