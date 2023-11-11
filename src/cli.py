@@ -1,6 +1,31 @@
+"""
+This Python script, cli.py, serves as the command-line interface (CLI) for the OrestisCompany analytics application. 
+It facilitates various database and analytics operations through a user-friendly command-line environment. 
+Key features include:
+
+1. Database Management Commands: 
+    Functions to initialize (initialize_db), populate (populate_db), and reset (reset_db) the database, ensuring smooth data management.
+
+2. Data Preprocessing and Analytics: 
+    Support for pre-processing analytics data (pre_process_analytics) with options for basic, intermediate, and advanced analysis. Users can specify date ranges and types of analytics to process.
+
+3. Analytics Visualization: 
+    The visualize_analytics function launches a web-based visualization service, enabling graphical viewing of analytics results.
+
+4. REPL (Read-Eval-Print Loop): 
+    Includes a REPL mode for interactive command execution, enhancing user engagement and simplifying command input.
+
+5. Utility Functions: 
+    Additional functions for checking existing analytics files, validating date ranges, and cleaning up analytics data, supporting the core features.
+
+6. Customizability and Error Handling: 
+    Equipped with robust error handling and customizable command options for a resilient and flexible user experience.
+
+The script uses the 'click' library to create an intuitive CLI, acting as the central hub for interacting with the OrestisCompany analytics application, designed for efficiency and ease of use.
+"""
+
 import subprocess
 import os
-import webbrowser
 import time
 import re
 import shutil
@@ -31,8 +56,7 @@ def cleanup_analytics_data(directory):
     try:
         shutil.rmtree(directory)
         click.echo(f"Cleaned up old analytics data in {directory}.")
-    except Exception as e:
-        #click.echo(f"An error occurred while cleaning up analytics data: {e}")
+    except:
         return
         
 
@@ -90,14 +114,6 @@ def is_valid_date_range(start_date_str, end_date_str):
     min_date = date(2021, 1, 1)
     max_date = date(2022, 12, 31)
 
-    # Check if both dates are in the correct format
-    """
-    if not is_date_arg(start_date_str):
-        return False, f"Error: Invalid date format for start date {start_date_str}"
-    
-    if not is_date_arg(end_date_str):
-        return False, f"Error: Invalid date format for end date {end_date_str}"
-    """
     # Convert strings to dates
     start_date = string_to_date(start_date_str)
     end_date = string_to_date(end_date_str)
@@ -237,17 +253,19 @@ def repl(ctx):
         click.echo("  exit or quit                                                  - Exit the CLI.")
         click.echo("")
         click.echo("=========================================")
-        click.echo("-----Pre-process Analytics Commands-----")
+        click.echo("-----Pre-process Analytics Command-----")
         click.echo("  pre_process_analytics start_date end_date -arg                - Pre-process analytics for visualizations.")
         click.echo("")
-        click.echo("  Note:")
+        click.echo("  Notes:")
         click.echo("    - dates must be between 20210101 and 20211231, default all dates that data exist [2021, 2022]")
         click.echo("    - arg can be b('basic'), i('intermediate') or a('advanced') analytics, default all")
         click.echo("    - arg can also be bi, ib, ba, ab, ai, ia, as per their combinations")
         click.echo("")
         click.echo("=========================================")
-        click.echo("-----Visualization Commands-----")
+        click.echo("-----Visualization Command-----")
         click.echo("  visualize_analytics                                           - Visualize all available analytics.")
+        click.echo("  Notes:")
+        click.echo("    - you can even pre_process_analytics again with different inputs and the visualization service will adjust")
         click.echo("")
         click.echo("=========================================")
         click.echo("-----Other-----")
@@ -322,12 +340,18 @@ def populate_db():
     if not db_initialized():
         click.echo("Error: The database has not been initialized. Please run 'initialize_db' first.")
         return
-    try:
-        # Execute the populate_db.sh script
-        subprocess.run(["/app/scripts/populate_db.sh"], check=True)
-        click.echo("Database populated successfully!")
-    except subprocess.CalledProcessError:
-        click.echo("An error occurred while populating the database.")
+    else:
+        if db_populated():
+            click.echo("Error: The database has already been populated.")
+            click.echo("You can run reset_db to re-initialize and re-populate the db.")
+            return
+        else:
+            try:
+                # Execute the populate_db.sh script
+                subprocess.run(["/app/scripts/populate_db.sh"], check=True)
+                click.echo("Database populated successfully!")
+            except subprocess.CalledProcessError:
+                click.echo("An error occurred while populating the database.")
 
 @cli.command()
 def reset_db():
@@ -422,7 +446,7 @@ def visualize_analytics(ctx):
                 # Completely disregard any stdout/stderr and dont keep logs, 
                 # When user exits the CLI then the Dash server will get SIGKILLL anyways.
                 # All of the above are outside this project's scope.
-                click.echo("Firing up analytics service...'")
+                click.echo("Firing up analytics visualization service...'")
                 subprocess.Popen(
                     ["/app/scripts/analytics_viz.sh"],
                     stdout=subprocess.DEVNULL,
@@ -431,7 +455,7 @@ def visualize_analytics(ctx):
                 
                 # Wait a couple of seconds for the server to start
                 time.sleep(2)
-                click.echo("Visualization for analytics should now be in 'http://localhost:8050/'")
+                click.echo("Visualization for analytics service is ready, open your favourite browser and enter 'http://localhost:8050/'")
             except Exception as e:
                 click.echo(f"An error occurred while visualizing analytics: {e}")
 

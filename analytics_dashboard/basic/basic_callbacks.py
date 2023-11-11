@@ -1,4 +1,24 @@
-# basic_callbacks.py
+"""
+This script, basic_callbacks.py, forms a crucial part of the basic analytics functionality in the OrestisCompany analytics dashboard. 
+It defines and registers callback functions for the Dash app, specifically tailored to update the basic analytics graphs dynamically.
+
+Key Function:
+- register_basic_callbacks: 
+    Registers callback functions to the Dash app that are triggered by user interactions or automatic intervals. 
+    The callbacks update various components of the basic analytics dashboard, ensuring the data displayed is current and interactive.
+
+Callback Details:
+- The main callback function, 'update_basic_graphs_live', is designed to update all basic analytics graphs whenever the interval component triggers or the user switches to the basic tab.
+- It checks if the current tab is the basic analytics tab; if not, it returns a no_update signal to prevent unnecessary data processing.
+- For each graph, it reads the corresponding data from CSV files, processes it using functions from 'basic_views.py', and updates the figures on the dashboard.
+
+The callbacks play a vital role in enhancing the interactivity of the dashboard, allowing for real-time data visualization and ensuring the data presented is refreshed at regular intervals.
+
+Usage:
+    To register the callbacks to a Dash app, call the register_basic_callbacks function with the app instance as an argument:
+    register_basic_callbacks(app)
+"""
+
 from dash.dependencies import Input, Output
 from analytics_dashboard.basic.basic_views import create_bar_chart, create_indicator
 from analytics_dashboard.basic.data_handling import read_data_basic

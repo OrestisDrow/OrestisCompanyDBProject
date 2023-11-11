@@ -1,3 +1,37 @@
+"""
+This script, advanced_analytics.py, is a component of the OrestisCompany analytics application, focusing on advanced data analysis techniques. 
+It uses SQL queries to extract data from an SQLite database and applies statistical methods for deeper insights. 
+The script includes the following key functionalities:
+
+1. Daily Profit Calculation: 
+    Computes the profit for each day within the specified date range.
+
+2. Bollinger Bands Computation: 
+    Applies Bollinger Bands to the daily profit data to identify periods of high and low volatility.
+
+3. Product Profit Margin Calculation: 
+    Calculates the profit margin for each product over the specified period.
+
+4. Store Profit Margin Calculation: 
+    Determines the profit margin for each store, taking into account total sales and profits.
+
+5. ARIMA Forecasting: 
+    Uses the ARIMA model to forecast future daily profits based on historical data.
+
+6. RFM (Recency, Frequency, Monetary) Scoring: 
+    Computes RFM scores for customers, a key method in customer segmentation.
+
+The script employs pandas for data manipulation, statsmodels for ARIMA modeling, and SQLite3 for database interactions. 
+It is designed to be executed with start and end date arguments, allowing for flexible analysis over different time periods. 
+The results of each analysis are saved in CSV format in the '/app/data/analytics/advanced/' directory.
+
+Usage:
+    python advanced_analytics.py <start_date> <end_date>
+
+Where <start_date> and <end_date> are in YYYYMMDD format. 
+The script will reformat these dates for SQLLite queries and carry out the analytics for the given range.
+"""
+
 import sqlite3
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
@@ -127,8 +161,9 @@ def forecast_daily_profits(conn, start_date=None, end_date=None, forecast_steps=
     # Convert the 'date' column to datetime type and extract only the date
     forecasted_profits['date'] = forecasted_profits['date'].dt.date
 
+    last_30_days = historical_profits_df.tail(30)
     # Combine the original daily profits with the forecasted profits
-    combined_df = pd.concat([historical_profits_df, forecasted_profits], ignore_index=True)
+    combined_df = pd.concat([last_30_days, forecasted_profits], ignore_index=True)
         
     return combined_df[['date', 'daily_profit']]
 

@@ -1,4 +1,23 @@
-# basic_views.py
+"""
+This script, basic_views.py, is an integral part of the basic analytics section of the OrestisCompany analytics dashboard. 
+It defines the visualization components and the layout structure for displaying basic analytics data using Dash and Plotly.
+
+Functions:
+1. create_bar_chart: 
+    Generates a bar chart from a given DataFrame. It requires the data to be structured with the first column for the x-axis and the second for the y-axis.
+2. create_indicator: 
+    Creates a numerical indicator visualization, primarily used for displaying single-value metrics like total sales or total profits.
+3. render_basic_view: 
+    Arranges the defined visualization components into a coherent layout for the basic analytics tab in the dashboard.
+
+Each function is designed to handle the absence of data gracefully, displaying a message 'No data found' in such cases. 
+The render_basic_view function constructs the layout by organizing the graphs into rows and grid items, ensuring a clean and readable presentation of the analytics.
+
+Usage:
+    The functions in this script are primarily called when rendering the basic analytics tab in the dashboard. 
+    They read prepared data from CSV files, process it, and visualize it in an interactive web-based interface.
+"""
+
 from dash import dcc, html
 import plotly.graph_objs as go
 from analytics_dashboard.basic.data_handling import read_data_basic

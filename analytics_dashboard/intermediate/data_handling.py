@@ -1,3 +1,27 @@
+"""
+This script, data_handling.py, is focused on data operations for the intermediate analytics part of the OrestisCompany analytics dashboard. 
+It handles the reading and optional sorting of CSV files containing intermediate analytics data.
+
+Functionality:
+1. read_data_intermediate: 
+    Reads CSV files from the '/app/data/analytics/intermediate' directory. 
+    It provides the capability to sort the data based on specified columns, including a special sorting feature for the 'weekday' column.
+
+Key Parameters:
+- file_name: The name of the CSV file to be read.
+- sort_by: Optional. The column name on which the data frame should be sorted. Special handling is included for sorting by the 'weekday' column.
+- ascending: Optional. A boolean that defines the sorting order (ascending or descending).
+
+The function attempts to read the specified file, and if sorting parameters are provided, it sorts the data as requested. 
+Special handling for the 'weekday' column allows for sorting data in the natural order of the days of the week. 
+In case of any errors during file reading or processing, the function returns None. 
+This functionality is key in preparing intermediate analytics data for visualization.
+
+Usage:
+    To read and optionally sort an intermediate analytics data file, use:
+    df = read_data_intermediate('file_name.csv', sort_by='column_name', ascending=True/False)
+"""
+
 import pandas as pd
 import os
 
