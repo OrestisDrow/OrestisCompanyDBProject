@@ -56,7 +56,7 @@ The OrestisCompanyDBProject ambitiously aims to bridge the gap between data engi
 
 ## Database Design Decisions
 
-![ERD Diagram](/orestiscompanydbproject/docs/schema.png "Database Entity-Relation-Diagram")
+![ERD Diagram](/docs/schema.png "Database Entity-Relation-Diagram")
 
 The project employs a star schema for database design, aimed at optimizing query performance for analytics workloads. This schema is particularly well-suited for the data warehousing and business intelligence applications that form the core of this project. It provides a balanced approach, offering both simplicity in understanding and efficiency in data retrieval.
 
