@@ -15,6 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . /app
 
+# Add execution permissions for all included custom scripts
+RUN find /app -type f -name "*.sh" -exec chmod +x {} \;
+
 # Adjust permissions for the data directory
 RUN mkdir -p /app/data && \
     chmod 777 /app/data
